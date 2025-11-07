@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Prajukti Shiksha — Regional EdTech (Prototype)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#f7f7fb;--card:#fff;--text:#111;--muted:#5b5b6a;--line:#e6e6ef;
+      --brand:#2563eb;--brand-2:#4338ca;--acc:#facc15;--ok:#16a34a;--danger:#e11d48;
+      --shadow:0 10px 30px rgba(0,0,0,.06);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(#fafafd,#fff);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",Helvetica,Arial}
+    a{color:var(--brand);text-decoration:none}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.8);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--line);z-index:10}
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 0}
+    .brand{display:flex;gap:10px;align-items:center}
+    .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand-2))}
+    .brand h1{margin:0;font-size:18px;font-weight:900}
+    .brand p{margin:0;color:var(--muted);font-size:12px}
+    .controls{display:flex;gap:8px;align-items:center}
+    select,input,button,textarea{font:inherit}
+    select,input{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff}
+    button{border:0;border-radius:14px;padding:8px 12px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+    .btn{background:var(--brand);color:#fff}
+    .btn.ghost{background:#fff;color:#333;border:1px solid var(--line);box-shadow:none}
+    .btn.outline{background:#fff;color:#333;border:1px solid var(--line)}
+    .btn.danger{background:var(--danger);color:#fff}
+    .btn.ok{background:var(--ok);color:#fff}
+    .section{padding:24px 0}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
+    .hero h2{margin:0 0 8px;font-size:28px}
+    .hero p{color:var(--muted);margin:6px 0 0}
+    .pill{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+    .gallery{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    @media(max-width:980px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}}
+    .card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:transform .1s ease}
+    .card:hover{transform:translateY(-1px)}
+    .thumb{position:relative;height:110px;background:linear-gradient(135deg,#e8f0ff,#eef2ff);cursor:pointer}
+    .badge{position:absolute;left:10px;top:10px;background:rgba(250,204,21,.95);color:#111;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
+    .teacher{position:absolute;left:12px;bottom:10px;display:flex;gap:8px;align-items:center;pointer-events:none}
+    .teacher img{width:28px;height:28px;border-radius:999px;border:1px solid #fff}
+    .teacher .tmeta{font-size:11px;color:#222}
+    .body{padding:12px;display:flex;flex-direction:column;gap:8px}
+    .title{font-weight:800}
+    .desc{color:var(--muted);font-size:13px}
+    .tags{display:flex;gap:6px;flex-wrap:wrap}
+    .tag{border:1px solid var(--line);padding:2px 8px;border-radius:999px;font-size:11px}
+    .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:6px}
+    .muted{color:var(--muted);font-size:12px}
+    .lessonbar{border-top:1px solid var(--line);padding:8px;display:flex;gap:6px;overflow:auto}
+    .chip{border:1px solid var(--line);padding:6px 8px;border-radius:10px;background:#fff;font-size:12px;white-space:nowrap}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+    .panel h3{margin:0 0 10px;font-size:18px}
+    .row{display:grid;gap:10px}
+    .row2{grid-template-columns:1fr 1fr}
+    .row3{grid-template-columns:1fr 1fr 1fr}
+    .help{font-size:12px;color:var(--muted)}
+    footer{border-top:1px solid var(--line);background:#fff}
+    footer .inner{padding:16px 0;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    /* Modal (player + details reuse) */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+    .modal.open{display:flex}
+    .modal .box{width:min(960px,100%);background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 15px 60px rgba(0,0,0,.3)}
+    .modal .bar{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}
+    .modal iframe{width:100%;aspect-ratio:16/9;border:0}
+    /* Tabs */
+    .tabs{display:flex;gap:10px;border-bottom:1px solid var(--line);margin-top:-6px}
+    .tab{padding:8px 12px;border:1px solid transparent;border-top-left-radius:10px;border-top-right-radius:10px;cursor:pointer}
+    .tab.active{border-color:var(--line);border-bottom-color:#fff;background:#fff}
+    /* My Courses list */
+    .list{display:grid;gap:12px}
+    .rowCard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+    .rowCard img{width:44px;height:44px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1 id="appName">Prajukti Shiksha</h1>
+          <p id="tagline">Open education, in your language.</p>
+        </div>
+      </div>
+      <div class="controls">
+        <nav class="tabs" aria-label="Primary">
+          <button class="tab active" id="tabExplore">Explore</button>
+          <button class="tab" id="tabMyCourses">My Courses</button>
+        </nav>
+        <select id="uiLang" title="UI Language"></select>
+        <select id="role" title="Role">
+          <option value="learner">Learner</option>
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Explore -->
+    <section class="section" id="viewExplore">
+      <div class="hero">
+        <div>
+          <h2><span id="appName2">Prajukti Shiksha</span>: <span id="tagline2">Open education, in your language.</span></h2>
+          <p>Host and learn high-quality courses in Assamese, Bengali, Hindi, English — fully open-source.</p>
+          <div class="pill" style="margin-top:10px;">
+            <input id="q" placeholder="Search courses" style="min-width:260px" />
+            <button class="btn" id="searchBtn">Search</button>
+            <button class="btn ghost" id="clearBtn">Clear</button>
+          </div>
+          <div class="filters">
+            <strong id="filtersLabel">Filters:</strong>
+            <select id="langFilter">
+              <option value="all">All languages</option>
+            </select>
+            <select id="levelFilter">
+              <option value="all">All levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+            <select id="tagFilter">
+              <option value="all">Tags</option>
+            </select>
+          </div>
+        </div>
+        <div class="gallery">
+          <div class="grid" id="gallery"></div>
+          <div class="muted" id="countNote" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div id="catalog" class="grid"></div>
+        <div id="noResults" class="panel" style="display:none;text-align:center;color:var(--muted)">No courses match your filters.</div>
+      </div>
+
+      <!-- Backoffice (Teacher/Admin) -->
+      <section class="section" id="backoffice" style="display:none">
+        <div class="row row2">
+          <div class="panel">
+            <h3 id="teacherFormTitle">Apply to Teach</h3>
+            <p class="help">Share your expertise in regional languages. Our team will review and onboard you.</p>
+            <form id="teacherForm" class="row">
+              <label> <span id="labelName">Your name</span><br>
+                <input name="name" placeholder="Rimjhim Das" required />
+              </label>
+              <label> <span id="labelEmail">Email</span><br>
+                <input type="email" name="email" placeholder="you@example.com" required />
+              </label>
+              <label> <span id="labelTopic">Proposed topic</span><br>
+                <input name="topic" placeholder="Data Science in Assamese" required />
+              </label>
+              <label> <span id="labelTeachLang">Language you will teach in</span><br>
+                <select name="lang" id="teachLang"></select>
+              </label>
+              <button class="btn" type="submit" id="submitBtn">Submit</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h3 id="newCourse">New Course</h3>
+            <form id="addCourseForm" class="row" autocomplete="off">
+              <div class="row row2">
+                <label><span id="labelTitle">Title</span><br>
+                  <input name="title" placeholder="Assamese for Developers" required />
+                </label>
+                <label>Teacher<br>
+                  <input name="teacher" placeholder="Priyanka Das" required />
+                </label>
+              </div>
+              <label><span id="labelDesc">Description</span><br>
+                <textarea name="description" placeholder="Short summary" rows="2" required></textarea>
+              </label>
+              <div class="row row3">
+                <label><span id="labelLang">Language</span><br>
+                  <select name="language" id="createLang"></select>
+                </label>
+                <label><span id="labelLevel">Level</span><br>
+                  <select name="level">
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </label>
+                <label>Duration (min)<br>
+                  <input name="duration" type="number" min="1" value="60" />
+                </label>
+              </div>
+              <label><span id="labelTags">Tags</span><br>
+                <input name="tags" placeholder="DSA, Algorithms" />
+              </label>
+              <div class="row row2">
+                <label>Lesson #1 Title<br>
+                  <input name="lesson1Title" placeholder="Intro" required />
+                </label>
+                <label>Lesson #1 YouTube ID<br>
+                  <input name="lesson1Video" placeholder="dQw4w9WgXcQ" required />
+                </label>
+              </div>
+              <label style="display:flex;gap:8px;align-items:center">
+                <input type="checkbox" name="featured" />
+                <span id="labelFeatured">Featured</span>
+              </label>
+              <div class="pill">
+                <button class="btn" type="submit" id="addCourseBtn">Add Course</button>
+                <span class="help">(Demo only: persists in your browser)</span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel" id="adminPanel" style="margin-top:16px;display:none">
+          <h3>Admin — Audit</h3>
+          <div class="row row2">
+            <div>
+              <strong>Enrollments</strong>
+              <ul id="enrollList" class="simple"></ul>
+            </div>
+            <div>
+              <strong>Favorites</strong>
+              <ul id="favList" class="simple"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- My Courses -->
+    <section class="section" id="viewMyCourses" style="display:none">
+      <div class="panel" style="margin-bottom:12px">
+        <h3>My Courses</h3>
+        <p class="help">Courses you have enrolled in. Continue learning or unenroll.</p>
+      </div>
+      <div id="myCoursesList" class="list"></div>
+      <div id="myCoursesEmpty" class="panel" style="display:none;text-align:center;color:var(--muted)">You have not enrolled in any course yet.</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap inner">
+      <div>© <span id="year"></span> Prajukti Shiksha. MIT Licensed.</div>
+      <div class="pill" style="gap:14px">
+        <a href="#">GitHub</a><a href="#">Docs</a><a href="#">Community</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Player Modal -->
+  <div class="modal" id="playerModal" aria-modal="true" role="dialog">
+    <div class="box">
+      <div class="bar">
+        <div>
+          <div class="title" id="modalCourseTitle">Course</div>
+          <div class="muted" id="modalLessonTitle">Lesson</div>
+        </div>
+        <button class="btn ghost" id="closeModal">✕</button>
+      </div>
+      <iframe id="ytFrame" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- Course Details Modal (open card & add to catalog/enroll) -->
+  <div class="modal" id="detailsModal" aria-modal="true" role="dialog">
+    <div class="box">
+      <div class="bar">
+        <div>
+          <div class="title" id="detailsCourseTitle">Course</div>
+          <div class="muted" id="detailsSub">—</div>
+        </div>
+        <div class="pill">
+          <button class="btn outline" id="detailsFavBtn">Favorite</button>
+          <button class="btn" id="detailsEnrollBtn">Enroll</button>
+          <button class="btn ok" id="detailsAddCatalogBtn" style="display:none">Add to Catalog</button>
+          <button class="btn ghost" id="closeDetails">✕</button>
+        </div>
+      </div>
+      <div style="padding:14px">
+        <p id="detailsDesc" class="muted" style="margin:0 0 10px"></p>
+        <div id="detailsTags" class="tags" style="margin-bottom:10px"></div>
+        <div class="lessonbar" id="detailsLessons"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========================= i18n ========================= */
+const LANG_LABEL = { en:"English", as:"Assamese", bn:"Bengali", hi:"Hindi" };
+const i18n = {
+  en:{appName:"Prajukti Shiksha",tagline:"Open education, in your language.",search:"Search courses",allLanguages:"All languages",allLevels:"All levels",filters:"Filters",language:"Language",level:"Level",tags:"Tags",clear:"Clear",enroll:"Enroll",enrolled:"Enrolled",favorite:"Favorite",unfavorite:"Unfavorite",continue:"Continue",lessons:"Lessons",resources:"Resources",minutes:"min",teacherFormTitle:"Apply to Teach",yourName:"Your name",email:"Email",topic:"Proposed topic",languageYouTeach:"Language you will teach in",submit:"Submit",role:"Role",learner:"Learner",teacher:"Teacher",admin:"Admin",addCourse:"Add Course",newCourse:"New Course",title:"Title",description:"Description",choose:"Choose…",noResults:"No courses match your filters.",featured:"Featured"},
+  as:{appName:"প্ৰযুক্তি শিক্ষা",tagline:"আপোনাৰ ভাষাত মুক্ত শিক্ষা",search:"কোৰ্ছ সন্ধান কৰক",allLanguages:"সকলো ভাষা",allLevels:"সকলো স্তৰ",filters:"ফিল্টাৰ্স",language:"ভাষা",level:"স্তৰ",tags:"টেগ্স",clear:"খালি কৰক",enroll:"ভৰ্তি হওক",enrolled:"ভৰ্তি হৈছে",favorite:"পছন্দ",unfavorite:"অপছন্দ",continue:"অগ্ৰগতি কৰক",lessons:"পাঠ",resources:"সাধনসমূহ",minutes:"মিনিট",teacherFormTitle:"শিক্ষকৰ বাবে আবেদন",yourName:"আপোনাৰ নাম",email:"ইমেইল",topic:"বিষয়",languageYouTeach:"আপুনি কিহি ভাষাত পড়াব",submit:"দাখিল কৰক",role:"ভূমিকা",learner:"শিক্ষার্থী",teacher:"শিক্ষক",admin:"প্ৰশাসক",addCourse:"কোৰ্ছ যোগ কৰক",newCourse:"নতুন কোৰ্ছ",title:"শিৰোনামা",description:"বিৱৰণ",choose:"বাছনি কৰক…",noResults:"ফিল্টাৰ মিল নালাগিলে কিছুমানো নাই।",featured:"বিশেষ"},
+  bn:{appName:"প্রযুক্তি শিক্ষা",tagline:"আপনার ভাষায় উন্মুক্ত শিক্ষা",search:"কোর্স খুঁজুন",allLanguages:"সব ভাষা",allLevels:"সব স্তর",filters:"ফিল্টার",language:"ভাষা",level:"স্তর",tags:"ট্যাগ",clear:"মুছুন",enroll:"ভর্তি",enrolled:"ভর্তি হয়েছে",favorite:"পছন্দ",unfavorite:"আনফেভারিট",continue:"চালিয়ে যান",lessons:"পাঠ",resources:"রিসোর্স",minutes:"মিনিট",teacherFormTitle:"শিক্ষক হিসেবে আবেদন",yourName:"আপনার নাম",email:"ইমেইল",topic:"বিষয়",languageYouTeach:"যে ভাষায় পড়াবেন",submit:"জমা দিন",role:"ভূমিকা",learner:"শিক্ষার্থী",teacher:"শিক্ষক",admin:"প্রশাসক",addCourse:"কোর্স যোগ করুন",newCourse:"নতুন কোর্স",title:"শিরোনাম",description:"বিবরণ",choose:"নির্বাচন…",noResults:"ফিল্টারে কোনো কোর্স পাওয়া যায়নি।",featured:"বাছাই"},
+  hi:{appName:"प्रौद्योगिकी शिक्षा",tagline:"आपकी भाषा में खुली शिक्षा",search:"कोर्स खोजें",allLanguages:"सभी भाषाएँ",allLevels:"सभी स्तर",filters:"फ़िल्टर",language:"भाषा",level:"स्तर",tags:"टैग",clear:"साफ़ करें",enroll:"नामांकन",enrolled:"नामांकित",favorite:"पसंद",unfavorite:"पसंद हटाएँ",continue:"जारी रखें",lessons:"पाठ",resources:"संसाधन",minutes:"मिन",teacherFormTitle:"शिक्षक बनने के लिए आवेदन",yourName:"आपका नाम",email:"ईमेल",topic:"विषय",languageYouTeach:"आप किस भाषा में पढ़ाएँगे",submit:"जमा करें",role:"भूमिका",learner:"सीखने वाला",teacher:"शिक्षक",admin:"प्रशासक",addCourse:"कोर्स जोड़ें",newCourse:"नया कोर्स",title:"शीर्षक",description:"विवरण",choose:"चुनें…",noResults:"फ़िल्टर से मेल खाते कोर्स नहीं मिले।",featured:"फ़ीचर्ड"}
+};
+
+/* ========================= Mock Data ========================= */
+const mockCourses = [
+  {id:"dsa-assamese",title:"ডাটা স্ট্ৰাকচাৰ আৰু এলগৰিদম (DSA)",description:"মৌলিক ডাটা স্ট্ৰাকচাৰ(Faundamental Data Structures), বাছনি(Searching) আৰু ডাইনামিক প্ৰগ্ৰামিং(Dynamic Programming)",language:"as",level:"intermediate",tags:["DSA","Competitive Programming","Algorithms"],teacher:{name:"Dr. N. Baruah",avatar:"https://i.pravatar.cc/64?img=12"},durationMin:320,featured:true,lessons:[{id:"as-1",title:"লিংকড লিষ্ট",youtubeId:"8hly31xKli0"},{id:"as-2",title:"ষ্টেক আৰু কিউ",youtubeId:"wjI1WNcIntg"}]},
+  {id:"python-bengali",title:"পাইথন প্রোগ্রামিংয়ের হাতেখড়ি",description:"ভেরিয়েবল, লুপ, ফাংশন, ফাইল I/O এবং বাস্তব উদাহরণ",language:"bn",level:"beginner",tags:["Python","Programming","Beginner"],teacher:{name:"Ananya Dutta",avatar:"https://i.pravatar.cc/64?img=32"},durationMin:210,featured:true,lessons:[{id:"bn-1",title:"পাইথন ইনস্টল ও হ্যালো ওয়ার্ল্ড",youtubeId:"rfscVS0vtbw"}]},
+  {id:"web-hindi",title:"फुल-स्टैक वेब डेवलपमेंट",description:"HTML, CSS, JS, और बैकएंड की आवश्यक बातें; डिप्लॉयमेंट तक",language:"hi",level:"intermediate",tags:["Web","HTML","CSS","JavaScript"],teacher:{name:"Rahul Verma",avatar:"https://i.pravatar.cc/64?img=14"},durationMin:480,featured:false,lessons:[{id:"hi-1",title:"HTML/CSS क्रैश",youtubeId:"pQN-pnXPaVg"},{id:"hi-2",title:"JS बेसिक्स",youtubeId:"W6NZfCO5SIk"}]},
+  {id:"math-en",title:"Discrete Mathematics for CS",description:"Sets, Logic, Graphs, Combinatorics for programmers",language:"en",level:"advanced",tags:["Math","Discrete","CS"],teacher:{name:"Prof. S. Mehta",avatar:"https://i.pravatar.cc/64?img=5"},durationMin:360,featured:false,lessons:[{id:"en-1",title:"Logic & Proofs",youtubeId:"wVXI8K44s0A"}]}
+];
+const LANGS = ["en","as","bn","hi"];
+
+/* ========================= State ========================= */
+const $ = (sel)=>document.querySelector(sel);
+const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
+
+const state = {
+  uiLang: localStorage.getItem("uiLang") || "en",
+  role: localStorage.getItem("role") || "learner",
+  query: "",
+  langFilter:"all",
+  levelFilter:"all",
+  tagFilter:"all",
+  courses: JSON.parse(localStorage.getItem("addedCourses")||"[]").concat(mockCourses),
+  enrolled: JSON.parse(localStorage.getItem("enrolled")||"{}"),
+  favorites: JSON.parse(localStorage.getItem("favorites")||"{}"),
+  currentCourse:null,
+  currentLesson:null,
+  lastLessonByCourse: JSON.parse(localStorage.getItem("lastLessonByCourse")||"{}") // {courseId: index}
+};
+
+/* ========================= Helpers ========================= */
+function t(key){ return (i18n[state.uiLang]||i18n.en)[key] || key }
+function saveLS(key,val){ localStorage.setItem(key, JSON.stringify(val)) }
+function uniqueTags(courses){ const s=new Set(); courses.forEach(c=> (c.tags||[]).forEach(x=>s.add(x))); return [...s] }
+function isCustomCourse(course){ return String(course.id).startsWith("c-"); }
+
+/* ========================= UI Binding ========================= */
+function bindStaticText(){
+  $("#appName").textContent = t("appName");
+  $("#appName2").textContent = t("appName");
+  $("#tagline").textContent = t("tagline");
+  $("#tagline2").textContent = t("tagline");
+  $("#filtersLabel").textContent = t("filters");
+  $("#teacherFormTitle").textContent = t("teacherFormTitle");
+  $("#labelName").textContent = t("yourName");
+  $("#labelEmail").textContent = t("email");
+  $("#labelTopic").textContent = t("topic");
+  $("#labelTeachLang").textContent = t("languageYouTeach");
+  $("#submitBtn").textContent = t("submit");
+  $("#newCourse").textContent = t("newCourse");
+  $("#labelTitle").textContent = t("title");
+  $("#labelDesc").textContent = t("description");
+  $("#labelLang").textContent = t("language");
+  $("#labelLevel").textContent = t("level");
+  $("#labelTags").textContent = t("tags");
+  $("#labelFeatured").textContent = t("featured");
+  $("#noResults").textContent = t("noResults");
+  $("#searchBtn").textContent = "Search";
+  $("#clearBtn").textContent  = t("clear");
+  $("#year").textContent = new Date().getFullYear();
+  $("#q").placeholder = t("search");
+  // language selects
+  const uiSel = $("#uiLang"); uiSel.innerHTML = LANGS.map(code=>`<option value="${code}">${LANG_LABEL[code]}</option>`).join("");
+  uiSel.value = state.uiLang;
+  const lf = $("#langFilter"); lf.innerHTML = `<option value="all">${t("allLanguages")}</option>` + LANGS.map(code=>`<option value="${code}">${LANG_LABEL[code]}</option>`).join(""); lf.value = state.langFilter;
+  const teachLang = $("#teachLang"); teachLang.innerHTML = LANGS.map(code=>`<option value="${code}">${LANG_LABEL[code]}</option>`).join("");
+  const cLang = $("#createLang"); cLang.innerHTML = LANGS.map(code=>`<option value="${code}">${LANG_LABEL[code]}</option>`).join("");
+}
+function renderGallery(){
+  const g = $("#gallery"); g.innerHTML = "";
+  state.courses.slice(0,6).forEach(()=> {
+    const d = document.createElement("div");
+    d.style.height="70px"; d.style.borderRadius="14px";
+    d.style.background="linear-gradient(135deg,#e8f0ff,#eef2ff)";
+    g.appendChild(d);
+  });
+  $("#countNote").textContent = `${state.courses.length} courses • prototype`;
+}
+function filterCourses(){
+  const q = state.query.toLowerCase();
+  return state.courses.filter(c=>{
+    const matchesQ = (c.title+" "+c.description+" "+(c.tags||[]).join(" ")+" "+(c.teacher?.name||"")).toLowerCase().includes(q);
+    const matchesLang = state.langFilter==="all" || c.language===state.langFilter;
+    const matchesLvl = state.levelFilter==="all" || c.level===state.levelFilter;
+    const matchesTag = state.tagFilter==="all" || (c.tags||[]).includes(state.tagFilter);
+    return matchesQ && matchesLang && matchesLvl && matchesTag;
+  });
+}
+function openPlayer(course, lesson){
+  state.currentCourse = course; state.currentLesson = lesson;
+  const lessonIndex = (course.lessons||[]).findIndex(l=>l===lesson || l.id===lesson.id);
+  if(lessonIndex>=0){ state.lastLessonByCourse[course.id]=lessonIndex; saveLS("lastLessonByCourse", state.lastLessonByCourse); }
+  $("#modalCourseTitle").textContent = course.title;
+  $("#modalLessonTitle").textContent = lesson.title;
+  $("#ytFrame").src = `https://www.youtube.com/embed/${lesson.youtubeId}`;
+  $("#playerModal").classList.add("open");
+}
+function closePlayer(){
+  $("#playerModal").classList.remove("open");
+  $("#ytFrame").src = "";
+}
+function toggleEnroll(id){
+  state.enrolled[id] = !state.enrolled[id];
+  saveLS("enrolled", state.enrolled);
+  renderCatalog();
+  renderMyCourses();
+  renderAdminAudit();
+}
+function toggleFav(id){
+  state.favorites[id] = !state.favorites[id];
+  saveLS("favorites", state.favorites);
+  renderCatalog();
+  renderAdminAudit();
+}
+
+/* ---------- Card & Catalog Rendering ---------- */
+function renderCatalog(){
+  const list = filterCourses();
+  const wrap = $("#catalog"); wrap.innerHTML = "";
+  $("#noResults").style.display = list.length? "none":"block";
+  list.forEach(course=>{
+    const card = document.createElement("div");
+    card.className="card";
+    card.innerHTML = `
+      <div class="thumb openDetails" role="button" tabindex="0" title="Open details">
+        ${course.featured? `<span class="badge">${t("featured")}</span>`:""}
+        <div class="teacher">
+          <img src="${course.teacher?.avatar||"https://i.pravatar.cc/64"}" alt="">
+          <div class="tmeta">
+            <div style="font-weight:700">${course.teacher?.name||"—"}</div>
+            <div style="color:var(--muted)">${LANG_LABEL[course.language]} • ${course.level}</div>
+          </div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="title">${course.title}</div>
+        <div class="desc">${course.description}</div>
+        <div class="tags">${(course.tags||[]).map(x=>`<span class="tag">${x}</span>`).join("")}</div>
+        <div class="foot">
+          <div class="muted">
+            ${(course.lessons||[]).length} ${t("lessons")} • ${course.durationMin||60} ${t("minutes")}
+          </div>
+          <div class="pill">
+            <button class="btn outline favBtn">${ state.favorites[course.id]? t("unfavorite"):t("favorite") }</button>
+            <button class="btn enrollBtn">${ state.enrolled[course.id]? t("enrolled"):t("enroll") }</button>
+          </div>
+        </div>
+      </div>
+      <div class="lessonbar">
+        ${(course.lessons||[]).map((lsn,i)=>`<button class="chip lsnBtn" data-yt="${lsn.youtubeId}" data-index="${i}">${i+1}. ${lsn.title}</button>`).join("")}
+      </div>
+    `;
+    // actions
+    card.querySelector(".enrollBtn").addEventListener("click", ()=>toggleEnroll(course.id));
+    card.querySelector(".favBtn").addEventListener("click", ()=>toggleFav(course.id));
+    card.querySelectorAll(".lsnBtn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const idx = +btn.dataset.index;
+        openPlayer(course, course.lessons[idx]);
+      });
+    });
+    // open details
+    card.querySelector(".openDetails").addEventListener("click", ()=> openDetails(course));
+    wrap.appendChild(card);
+  });
+  // update tag filter options from visible list
+  const tags = uniqueTags(state.courses);
+  const tf = $("#tagFilter");
+  tf.innerHTML = `<option value="all">${t("tags")}</option>` + tags.map(x=>`<option value="${x}">${x}</option>`).join("");
+  tf.value = state.tagFilter;
+}
+
+function openDetails(course){
+  state.currentCourse = course;
+  $("#detailsCourseTitle").textContent = course.title;
+  $("#detailsSub").textContent = `${LANG_LABEL[course.language]} • ${course.level} • ${(course.lessons||[]).length} ${t("lessons")} • ${course.durationMin||60} ${t("minutes")}`;
+  $("#detailsDesc").textContent = course.description;
+  $("#detailsTags").innerHTML = (course.tags||[]).map(x=>`<span class="tag">${x}</span>`).join("");
+  $("#detailsLessons").innerHTML = (course.lessons||[]).map((lsn,i)=>
+    `<button class="chip" data-idx="${i}">${i+1}. ${lsn.title}</button>`).join("");
+  $("#detailsFavBtn").textContent = state.favorites[course.id]? t("unfavorite"):t("favorite");
+  $("#detailsEnrollBtn").textContent = state.enrolled[course.id]? t("enrolled"):t("enroll");
+  // Add to Catalog (Teacher/Admin only), show if course is not already custom
+  $("#detailsAddCatalogBtn").style.display = (state.role!=="learner" && !isCustomCourse(course)) ? "inline-block":"none";
+  $("#detailsModal").classList.add("open");
+
+  // attach lesson click
+  $$("#detailsLessons .chip").forEach(btn=>{
+    btn.onclick = ()=> openPlayer(course, course.lessons[+btn.dataset.idx]);
+  });
+}
+
+/* ---------- My Courses View ---------- */
+function renderMyCourses(){
+  const listWrap = $("#myCoursesList");
+  const empty = $("#myCoursesEmpty");
+  const enrolledIds = Object.entries(state.enrolled).filter(([,v])=>v).map(([id])=>id);
+  const mine = state.courses.filter(c=> enrolledIds.includes(c.id));
+  listWrap.innerHTML = "";
+  empty.style.display = mine.length? "none":"block";
+
+  mine.forEach(c=>{
+    const li = document.createElement("div");
+    li.className = "rowCard";
+    li.innerHTML = `
+      <img src="${c.teacher?.avatar||'https://i.pravatar.cc/64'}" alt="">
+      <div style="flex:1 1 auto">
+        <div style="font-weight:800">${c.title}</div>
+        <div class="muted">${LANG_LABEL[c.language]} • ${c.level} • ${(c.lessons||[]).length} ${t("lessons")}</div>
+      </div>
+      <div class="pill">
+        <button class="btn outline studyBtn">Study</button>
+        <button class="btn danger unenrollBtn">Unenroll</button>
+      </div>
+    `;
+    li.querySelector(".studyBtn").onclick = ()=>{
+      // open last lesson or first
+      const idx = state.lastLessonByCourse[c.id] ?? 0;
+      const lesson = (c.lessons||[])[idx] || (c.lessons||[])[0];
+      if(lesson) openPlayer(c, lesson);
+      else alert("This course has no lessons yet.");
+    };
+    li.querySelector(".unenrollBtn").onclick = ()=> toggleEnroll(c.id);
+    listWrap.appendChild(li);
+  });
+}
+
+/* ========================= Events ========================= */
+function bindEvents(){
+  // Tabs
+  $("#tabExplore").onclick = ()=>{
+    $("#tabExplore").classList.add("active"); $("#tabMyCourses").classList.remove("active");
+    $("#viewExplore").style.display = "block"; $("#viewMyCourses").style.display = "none";
+  };
+  $("#tabMyCourses").onclick = ()=>{
+    $("#tabMyCourses").classList.add("active"); $("#tabExplore").classList.remove("active");
+    $("#viewExplore").style.display = "none"; $("#viewMyCourses").style.display = "block";
+    renderMyCourses();
+  };
+
+  $("#uiLang").addEventListener("change", (e)=>{
+    state.uiLang = e.target.value; localStorage.setItem("uiLang", state.uiLang);
+    bindStaticText(); renderCatalog();
+  });
+
+  $("#role").value = state.role;
+  $("#role").addEventListener("change",(e)=>{
+    state.role = e.target.value; localStorage.setItem("role", state.role);
+    const showBackoffice = state.role!=="learner";
+    $("#backoffice").style.display = showBackoffice? "block":"none";
+    $("#adminPanel").style.display = state.role==="admin" ? "block":"none";
+    renderAdminAudit();
+  });
+
+  $("#q").addEventListener("input",(e)=> state.query = e.target.value || "");
+  $("#searchBtn").addEventListener("click", ()=> renderCatalog());
+  $("#clearBtn").addEventListener("click", ()=>{
+    state.query=""; $("#q").value="";
+    state.langFilter="all"; state.levelFilter="all"; state.tagFilter="all";
+    bindStaticText(); renderCatalog();
+  });
+  $("#langFilter").addEventListener("change",(e)=>{ state.langFilter=e.target.value; renderCatalog() });
+  $("#levelFilter").addEventListener("change",(e)=>{ state.levelFilter=e.target.value; renderCatalog() });
+  $("#tagFilter").addEventListener("change",(e)=>{ state.tagFilter=e.target.value; renderCatalog() });
+
+  // Teach form
+  $("#teacherForm").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    alert(`Thanks ${fd.get("name")}! We received your application for ${LANG_LABEL[fd.get("lang")]}.`);
+    e.target.reset();
+  });
+
+  // Create course
+  $("#addCourseForm").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const course = {
+      id: `c-${Date.now()}`,
+      title: fd.get("title"),
+      description: fd.get("description"),
+      language: fd.get("language"),
+      level: fd.get("level"),
+      tags: String(fd.get("tags")||"").split(",").map(s=>s.trim()).filter(Boolean),
+      teacher: { name: fd.get("teacher"), avatar:"https://i.pravatar.cc/64" },
+      durationMin: Number(fd.get("duration")||60),
+      featured: !!fd.get("featured"),
+      lessons: [{ id:`l-${Date.now()}-1`, title: fd.get("lesson1Title"), youtubeId: fd.get("lesson1Video") }]
+    };
+    const added = JSON.parse(localStorage.getItem("addedCourses")||"[]");
+    added.unshift(course);
+    localStorage.setItem("addedCourses", JSON.stringify(added));
+    state.courses.unshift(course);
+    renderGallery(); renderCatalog();
+    e.target.reset();
+    alert("Course added to catalog (saved to your browser).");
+  });
+
+  // Player modal
+  $("#closeModal").addEventListener("click", closePlayer);
+  $("#playerModal").addEventListener("click", (e)=>{ if(e.target.id==="playerModal") closePlayer() });
+
+  // Details modal
+  $("#closeDetails").onclick = ()=> $("#detailsModal").classList.remove("open");
+  $("#detailsModal").addEventListener("click",(e)=>{ if(e.target.id==="detailsModal") $("#detailsModal").classList.remove("open") });
+
+  $("#detailsFavBtn").onclick = ()=>{
+    const c = state.currentCourse; if(!c) return;
+    toggleFav(c.id);
+    $("#detailsFavBtn").textContent = state.favorites[c.id]? t("unfavorite"):t("favorite");
+  };
+  $("#detailsEnrollBtn").onclick = ()=>{
+    const c = state.currentCourse; if(!c) return;
+    toggleEnroll(c.id);
+    $("#detailsEnrollBtn").textContent = state.enrolled[c.id]? t("enrolled"):t("enroll");
+  };
+  $("#detailsAddCatalogBtn").onclick = ()=>{
+    const c = state.currentCourse; if(!c) return;
+    // Clone non-custom course into catalog with a fresh id
+    if(isCustomCourse(c)){ alert("Already in your catalog."); return; }
+    const clone = JSON.parse(JSON.stringify(c));
+    clone.id = `c-${Date.now()}`;
+    const added = JSON.parse(localStorage.getItem("addedCourses")||"[]");
+    added.unshift(clone);
+    localStorage.setItem("addedCourses", JSON.stringify(added));
+    state.courses.unshift(clone);
+    renderCatalog();
+    alert("Course added to your catalog.");
+  };
+}
+
+/* ========================= Admin Audit ========================= */
+function renderAdminAudit(){
+  if(state.role!=="admin") return;
+  const eList = $("#enrollList"); const fList = $("#favList");
+  eList.innerHTML = ""; fList.innerHTML = "";
+  Object.entries(state.enrolled).filter(([,v])=>v).forEach(([id])=>{
+    const c = state.courses.find(x=>x.id===id);
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${c?.title||id}</span><button class="btn outline">Remove</button>`;
+    li.querySelector("button").addEventListener("click", ()=>{ toggleEnroll(id) });
+    eList.appendChild(li);
+  });
+  Object.entries(state.favorites).filter(([,v])=>v).forEach(([id])=>{
+    const c = state.courses.find(x=>x.id===id);
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${c?.title||id}</span><button class="btn outline">Remove</button>`;
+    li.querySelector("button").addEventListener("click", ()=>{ toggleFav(id) });
+    fList.appendChild(li);
+  });
+}
+
+/* ========================= Init ========================= */
+function init(){
+  // Tabs & role panels
+  $("#backoffice").style.display = state.role!=="learner" ? "block":"none";
+  $("#adminPanel").style.display = state.role==="admin" ? "block":"none";
+
+  bindStaticText();
+  renderGallery();
+  renderCatalog();
+  bindEvents();
+}
+init();
+</script>
+</body>
+</html>
